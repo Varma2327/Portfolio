@@ -1,0 +1,109 @@
+document.addEventListener('DOMContentLoaded', function() {
+    // Create cursor elements if they don't exist
+    if (!document.querySelector('.cursor-dot') && !document.querySelector('.cursor-dot-outline')) {
+        const cursorDot = document.createElement('div');
+        const cursorDotOutline = document.createElement('div');
+        
+        cursorDot.classList.add('cursor-dot');
+        cursorDotOutline.classList.add('cursor-dot-outline');
+        
+        document.body.appendChild(cursorDot);
+        document.body.appendChild(cursorDotOutline);
+        
+        let cursorVisible = true;
+        let cursorEnlarged = false;
+        
+        let endX = window.innerWidth / 2;
+        let endY = window.innerHeight / 2;
+        let endChangeX = endX;
+        let endChangeY = endY;
+        
+        function toggleCursorVisibility() {
+            if (cursorVisible) {
+                cursorDot.style.opacity = '1';
+                cursorDotOutline.style.opacity = '1';
+            } else {
+                cursorDot.style.opacity = '0';
+                cursorDotOutline.style.opacity = '0';
+            }
+        }
+        
+        function toggleCursorSize(enlarge) {
+            if (enlarge) {
+                cursorDot.style.transform = 'translate(-50%, -50%) scale(2)';
+                cursorDotOutline.style.transform = 'translate(-50%, -50%) scale(1.5)';
+                cursorDotOutline.style.backgroundColor = 'rgba(124, 58, 237, 0.4)';
+            } else {
+                cursorDot.style.transform = 'translate(-50%, -50%) scale(1)';
+                cursorDotOutline.style.transform = 'translate(-50%, -50%) scale(1)';
+                cursorDotOutline.style.backgroundColor = 'rgba(124, 58, 237, 0.2)';
+            }
+        }
+        
+        // Mouse events
+        document.addEventListener('mousedown', () => {
+            cursorEnlarged = true;
+            toggleCursorSize(true);
+        });
+        
+        document.addEventListener('mouseup', () => {
+            cursorEnlarged = false;
+            toggleCursorSize(false);
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            cursorVisible = true;
+            toggleCursorVisibility();
+            
+            endX = e.clientX;
+            endY = e.clientY;
+        });
+        
+        document.addEventListener('mouseenter', () => {
+            cursorVisible = true;
+            toggleCursorVisibility();
+        });
+        
+        document.addEventListener('mouseleave', () => {
+            cursorVisible = false;
+            toggleCursorVisibility();
+        });
+        
+        // Add hover effect to interactive elements
+        const interactiveElements = document.querySelectorAll('a, button, .interactive');
+        interactiveElements.forEach(el => {
+            el.addEventListener('mouseover', () => {
+                cursorEnlarged = true;
+                toggleCursorSize(true);
+            });
+            
+            el.addEventListener('mouseout', () => {
+                cursorEnlarged = false;
+                toggleCursorSize(false);
+            });
+        });
+        
+        // Animation loop
+        const animateCursor = () => {
+            // Smooth animation with lerp
+            endChangeX = lerp(endChangeX, endX, 0.15);
+            endChangeY = lerp(endChangeY, endY, 0.15);
+            
+            cursorDot.style.left = endChangeX + 'px';
+            cursorDot.style.top = endChangeY + 'px';
+            
+            cursorDotOutline.style.left = endChangeX + 'px';
+            cursorDotOutline.style.top = endChangeY + 'px';
+            
+            requestAnimationFrame(animateCursor);
+        };
+        
+        // Linear interpolation
+        function lerp(start, end, amt) {
+            return (1 - amt) * start + amt * end;
+        }
+        
+        // Start animation loop
+        animateCursor();
+    }
+});
